@@ -5,18 +5,93 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TeamPlanner Chat</title>
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 1rem; }
-    #chat { border: 1px solid #ccc; padding: 1rem; height: 300px; overflow-y: auto; margin-bottom: 1rem; }
-    #message { width: 80%; }
-    #send { width: 18%; }
+    :root {
+      --bg: #f9f9f9;
+      --accent: #4f46e5;
+      --text: #111;
+      --muted: #666;
+      --border: #ddd;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'Segoe UI', sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      height: 100vh;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    #chat {
+      flex-grow: 1;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      background: white;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+
+    .msg {
+      margin-bottom: 0.5rem;
+    }
+
+    .msg.you {
+      text-align: right;
+      color: var(--accent);
+    }
+
+    .meta {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    input {
+      flex-grow: 1;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0 1rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #3730a3;
+    }
   </style>
 </head>
 <body>
-  <h1>Mama mo Chat</h1>
-  <p id="welcome"></p>
+  <h1>MamamoChat</h1>
+  <p class="meta" id="welcome"></p>
   <div id="chat"></div>
-  <input id="message" type="text" placeholder="Type a message..." />
-  <button id="send">Send</button>
+  <div class="input-group">
+    <input id="message" type="text" placeholder="Type a message..." autocomplete="off" />
+    <button id="send">Send</button>
+  </div>
 
   <script>
     const username = "User" + Math.floor(Math.random() * 1000);
@@ -29,27 +104,34 @@
     const socket = new WebSocket('wss://teamplanner-server.onrender.com');
 
     socket.addEventListener('open', () => {
-      chat.innerHTML += `<div><em>Connected to server as ${username}.</em></div>`;
-    });
-
-    socket.addEventListener('message', (event) => {
-      chat.innerHTML += `<div>${event.data}</div>`;
+      const systemMsg = document.createElement('div');
+      systemMsg.className = 'msg meta';
+      systemMsg.textContent = `Connected to server as ${username}`;
+      chat.appendChild(systemMsg);
       chat.scrollTop = chat.scrollHeight;
     });
 
-    sendButton.addEventListener('click', () => {
-      const msg = messageInput.value;
-      if (msg.trim() !== '') {
-        const fullMsg = `${username}: ${msg}`;
-        socket.send(fullMsg);
-        chat.innerHTML += `<div><strong>You:</strong> ${msg}</div>`;
-        chat.scrollTop = chat.scrollHeight;
-        messageInput.value = '';
-      }
+    socket.addEventListener('message', (event) => {
+      const div = document.createElement('div');
+      div.className = 'msg';
+      div.textContent = event.data;
+      if (event.data.startsWith(`${username}:`)) div.classList.add('you');
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
     });
 
+    function sendMessage() {
+      const msg = messageInput.value.trim();
+      if (msg !== '') {
+        const fullMsg = `${username}: ${msg}`;
+        socket.send(fullMsg);
+        messageInput.value = '';
+      }
+    }
+
+    sendButton.addEventListener('click', sendMessage);
     messageInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sendButton.click();
+      if (e.key === 'Enter') sendMessage();
     });
   </script>
 </body>
