@@ -3,95 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TeamPlanner Chat</title>
+  <title>MamamoChat</title>
   <style>
     :root {
-      --bg: #f9f9f9;
+      --bg: #1e1e1e;
+      --text: #f3f3f3;
+      --border: #333;
       --accent: #4f46e5;
-      --text: #111;
-      --muted: #666;
-      --border: #ddd;
+      --highlight: #2a2a2a;
     }
 
     body {
-      background: var(--bg);
       font-family: 'Segoe UI', sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 1rem;
+      background-color: var(--bg);
       color: var(--text);
-      display: flex;
-      flex-direction: column;
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 1.5rem;
-      height: 100vh;
     }
 
     h1 {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       margin-bottom: 0.5rem;
     }
 
     #chat {
-      flex-grow: 1;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      background-color: var(--highlight);
       padding: 1rem;
-      background: white;
+      height: 300px;
       overflow-y: auto;
       margin-bottom: 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      border-radius: 8px;
     }
 
-    .msg {
-      margin-bottom: 0.5rem;
+    #chat div {
+      margin-bottom: 0.4rem;
+      line-height: 1.4;
     }
 
-    .msg.you {
-      text-align: right;
-      color: var(--accent);
-    }
-
-    .meta {
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
-    .input-group {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    input {
-      flex-grow: 1;
+    #message {
+      width: 80%;
       padding: 0.6rem;
+      background: #2d2d2d;
       border: 1px solid var(--border);
+      color: var(--text);
       border-radius: 6px;
       font-size: 1rem;
     }
 
-    button {
-      background: var(--accent);
+    #send {
+      width: 18%;
+      padding: 0.6rem;
+      background-color: var(--accent);
       color: white;
       border: none;
-      padding: 0 1rem;
       border-radius: 6px;
       font-size: 1rem;
       cursor: pointer;
       transition: background 0.2s;
+      margin-top: 10px;
+      align-self: center;
     }
 
-    button:hover {
-      background: #3730a3;
+    #send:hover {
+      background-color: #3730a3;
+    }
+
+    #welcome {
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-bottom: 1rem;
     }
   </style>
 </head>
 <body>
-  <h1>MamamoChat</h1>
-  <p class="meta" id="welcome"></p>
+  <h1>Mama mo Chat</h1>
+  <p id="welcome"></p>
   <div id="chat"></div>
-  <div class="input-group">
-    <input id="message" type="text" placeholder="Type a message..." autocomplete="off" />
-    <button id="send">Send</button>
-  </div>
+  <input id="message" type="text" placeholder="Type a message..." />
+  <button id="send">Send</button>
 
   <script>
     const username = "User" + Math.floor(Math.random() * 1000);
@@ -104,34 +95,27 @@
     const socket = new WebSocket('wss://teamplanner-server.onrender.com');
 
     socket.addEventListener('open', () => {
-      const systemMsg = document.createElement('div');
-      systemMsg.className = 'msg meta';
-      systemMsg.textContent = `Connected to server as ${username}`;
-      chat.appendChild(systemMsg);
-      chat.scrollTop = chat.scrollHeight;
+      chat.innerHTML += `<div><em>Connected to server as ${username}.</em></div>`;
     });
 
     socket.addEventListener('message', (event) => {
-      const div = document.createElement('div');
-      div.className = 'msg';
-      div.textContent = event.data;
-      if (event.data.startsWith(`${username}:`)) div.classList.add('you');
-      chat.appendChild(div);
+      chat.innerHTML += `<div>${event.data}</div>`;
       chat.scrollTop = chat.scrollHeight;
     });
 
-    function sendMessage() {
-      const msg = messageInput.value.trim();
-      if (msg !== '') {
+    sendButton.addEventListener('click', () => {
+      const msg = messageInput.value;
+      if (msg.trim() !== '') {
         const fullMsg = `${username}: ${msg}`;
         socket.send(fullMsg);
+        chat.innerHTML += `<div><strong>You:</strong> ${msg}</div>`;
+        chat.scrollTop = chat.scrollHeight;
         messageInput.value = '';
       }
-    }
+    });
 
-    sendButton.addEventListener('click', sendMessage);
     messageInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sendMessage();
+      if (e.key === 'Enter') sendButton.click();
     });
   </script>
 </body>
