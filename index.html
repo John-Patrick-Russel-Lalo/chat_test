@@ -43,7 +43,7 @@
       margin-bottom: 0.4rem;
       margin-right: 0.4rem;
       line-height: 1.4;
-      max-width: 80%;
+      max-width: 90%;
       width: fit-content;
       word-wrap: break-word;
       overflow-wrap: break-word;
@@ -59,7 +59,7 @@
       background-color: lightblue;
       border-radius: 10px;
       padding: 7px;
-      max-width: 80%;
+      max-width: 90%;
       width: fit-content;
       word-wrap: break-word;
       overflow-wrap: break-word;
@@ -98,12 +98,23 @@
       color: #aaa;
       margin-bottom: 1rem;
     }
+    
+    #onlineCount{
+      background-color: lightslategray;
+      color: white;
+      weight: bold;
+      padding: 7px;
+      width: fit-content;
+      height: fit-content;
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>Mama mo Chat</h1>
   <p id="welcome"></p>
   <p id="onlineCount"></p>
+  <p id="connectedAs"></p>
   <div id="chat"></div>
   <input id="message" type="text" placeholder="Type a message..." />
   <button id="send">Send</button>
@@ -111,7 +122,8 @@
 <script>
   const username = "User" + Math.floor(Math.random() * 1000);
   document.getElementById('welcome').textContent = `You are: ${username}`;
-
+  
+  const connectedAs = document.getElementById('connectedAs');
   const chat = document.getElementById('chat');
   const messageInput = document.getElementById('message');
   const sendButton = document.getElementById('send');
@@ -119,7 +131,7 @@
   const socket = new WebSocket('wss://teamplanner-server.onrender.com');
 
   socket.addEventListener('open', () => {
-    chat.innerHTML += `<div><em>Connected to server as ${username}.</em></div>`;
+    connectedAs.innerHTML += `<div><em>Connected to server as ${username}.</em></div>`;
   });
 
   socket.addEventListener('message', (event) => {
