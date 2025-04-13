@@ -35,11 +35,21 @@
       overflow-y: auto;
       margin-bottom: 1rem;
       border-radius: 8px;
+      display:flex;
+      flex-flow: column;
     }
 
     #chat div {
       margin-bottom: 0.4rem;
+      margin-right: 0.4rem;
       line-height: 1.4;
+    }
+    #chat .userYou{
+      color: black;
+      align-self: end;
+      background-color: lightblue;
+      border-radius: 10px;
+      padding: 7px;
     }
 
     #message {
@@ -123,7 +133,7 @@
         message: `${username}: ${msg}`
       };
       socket.send(JSON.stringify(fullMsg));
-      chat.innerHTML += `<div><strong>You:</strong> ${msg}</div>`;
+      chat.innerHTML += `<div style="weight:bold;" class="userYou"> ${msg}</div>`;
       chat.scrollTop = chat.scrollHeight;
       messageInput.value = '';
     }
